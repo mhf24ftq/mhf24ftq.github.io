@@ -1,0 +1,72 @@
+<html>
+
+<head>
+    <!-- defining head of elements and using necessary libraries-->
+    <meta charset="UTF-8">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <title>AR based 3D bar chart application using A-Frame</title>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    <!-- using d3.js version 3-->
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+
+<body style='margin: 0px; overflow: hidden;'>
+    <!--defining HTML body-->
+    <a-scene embedded arjs>
+        <a-marker preset="hiro">
+            <!-- using HIRO marker for detection and bars visualization-->
+            <a-entity id="BarsContainer" rotation="0 0 0" position="-0.01 -0.0 -0.0" scale="0.1 0.1 0.1">
+                <!--container for 3D generated bars-->
+            </a-entity>
+
+        </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        // generating data for 3D bars of size 200, using floor library to make roundoff
+        const jsonarray = Array.from({
+            length: 200
+        }, () => ({
+            "value": Math.floor(Math.random() * 30) + 1
+        }));
+
+        //mapping and converting the JSON data
+        var dataset = jsonarray.map(d => d.value);
+
+        // Determine the grid size (N)
+        var Size = Math.ceil(Math.sqrt(dataset.length));
+
+        //using D3.js for the creation of contianer
+        var BarContainer = d3.select("#BarsContainer");
+
+        // defined array for colors
+        var darkColors = [
+            "#0D47A1", "#1B5E20", "#B71C1C", "#4A148C", "#F57F17",
+            "#E65100", "#3E2723", "#004D40", "#311B92", "#880E4F"
+        ];
+
+        //bars will be created on the basis of above dataset
+        var GeneratedBars = BarContainer.selectAll("a-box.bar")
+            .data(dataset)
+            .enter()
+            .append("a-box")
+            .classed("bar", true);
+
+        //setting all the dimesnions for bars including height, width and depth 
+        GeneratedBars.attr("position", (d, i) => {
+                var xaxis = i % Size; // calculaltng the position for X-axis
+                var zaxis = Math.floor(i / Size); // calculaltng the position for Y-axis
+                var yaxis = d / 4; // setting the height of the bars on the basis of data
+                return `${xaxis * 1.5} ${yaxis} ${zaxis * 1.5}`; //returning all
+            })
+            .attr("height", d => d / 2)
+            .attr("width", 0.9)
+            .attr("depth", 0.9)
+            //setting colors of bars
+            .attr("color", (d, i) => darkColors[i % darkColors.length]);
+    </script>
+
+</body>
+
+</html>
